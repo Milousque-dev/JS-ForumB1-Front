@@ -70,15 +70,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", Home)
-	http.HandleFunc("/register", RegisterHandler)
-	http.HandleFunc("/login", LoginHandler)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", Home)
+	mux.HandleFunc("/register", RegisterHandler)
+	mux.HandleFunc("/login", LoginHandler)
 
 	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	fmt.Println("Serveur lancé sur (http://localhost" + port + ")")
-	err := http.ListenAndServe(port, nil)
+	
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		fmt.Println("erreur serveur:", err)
 	}
