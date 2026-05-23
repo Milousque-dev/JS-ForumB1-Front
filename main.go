@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"net/http"
 	"html/template"
+	"forum/fake"
 )
 
 const port = ":8080"
 
-func renderTemplate(w http.ResponseWriter, tmpl string) {
+func renderTemplate(w http.ResponseWriter, tmpl string, data any) {
 	t, err := template.ParseFiles("./templates/" + tmpl )
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = t.Execute(w, nil)
+	err = t.Execute(w, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -28,12 +29,13 @@ func Home( w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	renderTemplate(w, "index.tmpl")
+	data := fake.GetAllPosts()
+	renderTemplate(w, "index.tmpl", data)
 }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		renderTemplate(w, "register.tmpl")
+		renderTemplate(w, "register.tmpl", nil)
 		return
 	}
 	if r.Method == http.MethodPost {
@@ -52,7 +54,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		renderTemplate(w, "login.tmpl")
+		renderTemplate(w, "login.tmpl", nil)
 		return
 	}
 
@@ -64,6 +66,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		// if (bdd response = ok) {
 		http.Redirect(w, r, "/", http.StatusSeeOther) // redirige vers accueil
+		return
 	}
 
 	http.Error(w, "Erreur: methode interdite", http.StatusMethodNotAllowed)
