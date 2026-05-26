@@ -22,8 +22,13 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", handlers.Home)
-	mux.HandleFunc("/register", handlers.RegisterHandler)
-	mux.HandleFunc("/login", handlers.LoginHandler)
+	
+	mux.HandleFunc("GET /register", handlers.RegisterHandler)
+	mux.HandleFunc("POST /register", handlers.PostRegisterHandler)
+
+
+	mux.HandleFunc("GET /login", handlers.LoginHandler)
+	mux.HandleFunc("POST /login", handlers.PostLoginHandler)
 	mux.HandleFunc("/posts/", handlers.PostHandler)
 
 	fs := http.FileServer(http.Dir("static"))
