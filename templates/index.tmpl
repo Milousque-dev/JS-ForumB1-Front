@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,34 +8,37 @@
 </head>
 <body>
     <header>
-        <a href="/">Forum name</a>
-        <input type="text" placeholder="search...">
-        <button type="submit"></button>
-        <a href="register">S'inscrire</a>
-        <a href="login">Se connecter</a>
+        <a class="brand tohover" href="/">Forum name</a>
+        <form class="search" action="/" method="GET">
+            <input type="text" name="q" placeholder="Rechercher...">
+            <button class="tohover" type="submit">OK</button>
+        </form>
+        <nav class="authNav">
+            <a class="tohover" href="register">S'inscrire</a>
+            <a class="tohover" href="login">Se connecter</a>
+        </nav>
     </header>
-    <div id="sideNav">
-        <a>populaires</a>
-        <a>Catégories</a>
-        <a>Page aléatoire</a>
-    </div>
 
-    
-    {{ range . }}
-    <div class="data">
-        <h3>
-            <a href="/posts/{{ .ID }}">
-                {{ .Title }}
-            </a>
-        </h3>
-        <p>{{ .Content }}</p>
-        <small>{{ .Author }} - {{ .Category }}</small>
-    </div>
+    <main class="layout">
+        <nav id="sideNav">
+            <a class="tohover">Populaires</a>
+            <a class="tohover">Categories</a>
+            <a class="tohover">Page aleatoire</a>
+        </nav>
 
-    {{ else }}
-    <p class="data">Void for now</p>
-
-     {{ end }}
-
+        <section class="feed">
+            {{ range . }}
+            <article class="data">
+                <h3>
+                    <a href="/posts/{{ .ID }}">{{ .Title }}</a>
+                </h3>
+                <p>{{ .Content }}</p>
+                <small>{{ .Author }} - {{ .Category }}</small>
+            </article>
+            {{ else }}
+            <p class="data">Void for now</p>
+            {{ end }}
+        </section>
+    </main>
 </body>
 </html>
