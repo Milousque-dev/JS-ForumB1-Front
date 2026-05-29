@@ -33,6 +33,9 @@ func main() {
 	mux.HandleFunc("GET /posts/{id}", handlers.PostHandler)
 	mux.HandleFunc("POST /posts/{id}/comments", handlers.CreateCommentHandler)
 
+	mux.HandleFunc("GET /posts/create", handlers.PostCreateHandler)
+	mux.HandleFunc("POST /posts/create", handlers.PostCreator)
+
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 

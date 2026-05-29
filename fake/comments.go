@@ -16,7 +16,7 @@ func GetCommentByPostID(postID int) []models.Comments {
 	for _, comment := range comments {
 		if comment.PostID == postID {
 			result = append(result, comment)
-		} 
+		}
 	}
 	return result
 }

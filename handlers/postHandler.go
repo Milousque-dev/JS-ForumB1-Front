@@ -42,6 +42,12 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, found := fake.GetPostById(id)
+	if !found {
+		http.NotFound(w, r)
+		return
+	} 
+
 	content := strings.TrimSpace(r.FormValue("content"))
 	if content == "" {
 		http.Error(w, "Erreur contenu vide", http.StatusBadRequest)
