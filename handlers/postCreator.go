@@ -2,11 +2,18 @@ package handlers
 
 import (
 	"fmt"
+	"forum/fake"
 	"net/http"
 	"strings"
 )
 
 func PostCreateHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 	RenderTemplate(w, "postcreate.tmpl", nil)
 }
 

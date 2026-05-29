@@ -24,10 +24,15 @@
             <a class="tohover">Populaires</a>
             <a class="tohover">Categories</a>
             <a class="tohover">Page aleatoire</a>
+            {{ if .IsLogged }}
+            <a href="/posts/create" class="tohover">Créer un post</a>
+            {{ else }}
+            <a href="/login" class ="tohover">Connectez vous pour poster</a>
+            {{ end }}
         </nav>
 
         <section class="feed">
-            {{ range . }}
+            {{ range .Posts }}
             <article class="data">
                 <h3>
                     <a href="/posts/{{ .ID }}">{{ .Title }}</a>

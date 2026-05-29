@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"html/template"
 	"forum/fake"
+	"forum/models"
 )
 
 func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
@@ -21,6 +22,13 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
 }
 
 func Home( w http.ResponseWriter, r *http.Request) {
-	data := fake.GetAllPosts()
+	posts := fake.GetAllPosts()
+
+	data := models.TemplateData {
+		Username: "Boss",
+		Posts: posts,
+		IsLogged: true,
+		Error: "",
+	}
 	RenderTemplate(w, "index.tmpl", data)
 }
