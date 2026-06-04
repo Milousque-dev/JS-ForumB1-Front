@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap');
+
+body {
+    font-family: 'Roboto Slab', serif;
+}
+
 :root {
     color-scheme: dark;
     --bg: #111214;
@@ -18,7 +24,7 @@ body {
     margin: 0;
     background-image: linear-gradient(to bottom right, black, rgb(41, 41, 41), black);
     color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Roboto Slab, Helvetica, sans-serif;
 }
 
 .tohover:hover {
@@ -32,7 +38,7 @@ a {
 }
 
 textarea {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Roboto Slab, Helvetica, sans-serif;
 }
 
 header {
@@ -266,4 +272,49 @@ body > h3 {
         gap: 10px;
         font-size: 0.92rem;
     }
+}
+.category-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 14px 0 22px;
+}
+
+.category-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #d8dee8;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2937;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.category-option:hover {
+    border-color: #8fb4ff;
+    background: #f7faff;
+}
+
+.category-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.category-option:has(input[type="checkbox"]:checked) {
+    border-color: #2563eb;
+    background: #eef5ff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.category-option span {
+    line-height: 1.2;
 }

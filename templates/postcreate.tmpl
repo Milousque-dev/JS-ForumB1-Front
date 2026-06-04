@@ -15,10 +15,14 @@
         <label for="content">Contenu</label>
         <textarea id="content" class="comment" name="content" required></textarea>
 
-        {{ range . }}
-        <input type="checkbox" id="{{ .ID }}" name="categories" value="{{ .ID }}">
-        <label for="category-{{ .ID }}">{{ .Name }}</label>
-        {{ end }}
+        <div class="category-checkboxes">
+            {{ range . }}
+            <label class="category-option" for="category-{{ .ID }}">
+                <input type="checkbox" id="category-{{ .ID }}" name="categories" value="{{ .ID }}">
+                <span>{{ .Name }}</span>
+            </label>
+            {{ end }}
+        </div>
 
         <button type="submit">Publier</button>
     </form>
