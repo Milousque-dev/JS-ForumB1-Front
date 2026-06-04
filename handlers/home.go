@@ -24,12 +24,12 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
 func Home( w http.ResponseWriter, r *http.Request) {
 	posts := fake.GetAllPosts()
 
-	IsLogged := true
+	username, isLogged := fake.GetCurrentUser(r)
 
 	data := models.TemplateData {
-		Username: "Boss",
+		Username: username,
 		Posts: posts,
-		IsLogged: IsLogged,
+		IsLogged: isLogged,
 		Error: "",
 	}
 	RenderTemplate(w, "index.tmpl", data)

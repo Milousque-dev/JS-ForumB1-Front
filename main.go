@@ -30,6 +30,8 @@ func main() {
 	mux.HandleFunc("GET /login", handlers.LoginHandler)
 	mux.HandleFunc("POST /login", handlers.PostLoginHandler)
 
+	mux.HandleFunc("POST /logout", handlers.LogoutHandler)
+
 	mux.HandleFunc("GET /posts/{id}", handlers.PostHandler)
 	mux.HandleFunc("POST /posts/{id}/comments", handlers.CreateCommentHandler)
 

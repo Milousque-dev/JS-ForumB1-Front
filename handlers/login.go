@@ -5,7 +5,17 @@ import (
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "login.tmpl", nil)
+	errorMessage := ""
+
+	if r.URL.Query().Get("error") == "1" {
+		errorMessage = "Identifiant ou mot de passe incorrect"
+	}
+
+	data := map[string]any{
+		"Error": errorMessage,
+	}
+
+	RenderTemplate(w, "login.tmpl", data)
 }
 
 func PostLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +37,15 @@ func PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Error(w, "Email ou mot de passe erroné", http.StatusUnauthorized)
+	http.Redirect(w, r, "/login?error=1", http.StatusSeeOther)
+}
 
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name: "session_id",
+		Value: "",
+		Path: "/",
+		MaxAge: -1,
+	})
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

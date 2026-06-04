@@ -318,3 +318,9 @@ body > h3 {
 .category-option span {
     line-height: 1.2;
 }
+
+.errorText {
+    color: red;
+    font-size: 20px;
+    text-align: center;
+}
