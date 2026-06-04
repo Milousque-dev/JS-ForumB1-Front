@@ -34,6 +34,12 @@ func PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 
 // fonction pour poster le post
 func PostCreator(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	title := strings.TrimSpace(r.FormValue("title"))
 	content := strings.TrimSpace(r.FormValue("content"))
 	categories := r.Form["categories"]

@@ -7,6 +7,12 @@ import (
 	"strconv"
 )
 func PostLikeHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	PostID := r.PathValue("id")
 	id, err := strconv.Atoi(PostID)
 	if err != nil {
@@ -27,6 +33,12 @@ func PostLikeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostDislikeHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	PostID := r.PathValue("id")
 	id, err := strconv.Atoi(PostID)
 	if err != nil {

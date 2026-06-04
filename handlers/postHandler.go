@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// fonction pour envoyer la page avec les posts
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
@@ -37,7 +38,14 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "post.tmpl", datas)
 }
 
+// pour créer un commentaire si conditions sont réunies...
 func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	postID := r.PathValue("id")
 	id, err := strconv.Atoi(postID)
 	if err != nil {

@@ -8,6 +8,12 @@ import (
 )
 
 func CommentLikeHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	
 	CommentID := r.PathValue("id")
 	id, err := strconv.Atoi(CommentID)
 	if err != nil {
@@ -27,6 +33,12 @@ func CommentLikeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func CommentDislikeHandler(w http.ResponseWriter, r *http.Request) {
+	_, isLogged := fake.GetCurrentUser(r)
+	if !isLogged {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
 	CommentID := r.PathValue("id")
 	id, err := strconv.Atoi(CommentID)
 	if err != nil {
