@@ -50,7 +50,9 @@ func PostCreator(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/posts/create?error=1", http.StatusSeeOther)
 		return
 	}
-
+	
+	// refuser l'image si trop volumineuse (>20Mo)
+	r.Body = http.MaxBytesReader(w, r.Body, 20*1024*1024)
 	// pour gérer l'upload de fichier image : avoir le path et sauvegarder l'img
 	file, header, err := r.FormFile("image")
 	if err != nil {
