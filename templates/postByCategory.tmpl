@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>PostByCategory</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -38,11 +38,13 @@
         </nav>
 
         <section class="feed">
-            {{ range .Categories }}
+            {{ range .Posts }}
             <article class="data">
                 <h3>
-                    <a href="/categories/{{ .ID }}">{{ .Name }}</a>
+                    <a href="/posts/{{ .ID }}">{{ .Title }}</a>
                 </h3>
+                <p> {{ .Content }}</p>
+                <small>{{ .Author }} — {{ .Category }}</small>
             </article>
             {{ else }}
             <p class="data">Void for now</p>

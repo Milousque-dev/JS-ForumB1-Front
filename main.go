@@ -38,6 +38,8 @@ func main() {
 
 	mux.HandleFunc("GET /categories", handlers.CategoriesHandler)
 
+	mux.HandleFunc("GET /categories/{id}", handlers.CategoryByIdHandler)
+
 	mux.HandleFunc("GET /random", handlers.RandomPageHandler)
 
 	fs := http.FileServer(http.Dir("static"))

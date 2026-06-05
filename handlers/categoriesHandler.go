@@ -4,6 +4,7 @@ import (
 	"forum/fake"
 	"forum/models"
 	"net/http"
+	"strconv"
 )
 
 func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,4 +17,33 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RenderTemplate(w, "categories.tmpl", data)
+}
+
+func CategoryByIdHandler(w http.ResponseWriter, r *http.Request) {
+	IdString := r.PathValue("id")
+
+	id, err := strconv.Atoi(IdString)
+	if err != nil {
+		http.NotFound(w,r)
+		return
+	}
+
+	category, found := fake.GetCategoryById(id)
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
+
+	posts := fake.GetPostsByCategory(category.Name)
+
+	username, isLogged := fake.GetCurrentUser(r)
+
+	data := models.TemplateData{
+		Username: username,
+		IsLogged: isLogged,
+
+		Posts: posts,
+	}
+
+	RenderTemplate(w, "postByCategory.tmpl", data)
 }

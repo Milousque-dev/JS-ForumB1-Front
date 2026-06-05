@@ -37,3 +37,39 @@ func GetPostById(id int) (models.Post, bool) {
 
 	return models.Post{}, false
 }
+
+func GetPostsByCategory(category string) ([]models.Post) {
+	var result []models.Post
+
+	posts := []models.Post {
+		{
+			ID: 1,
+			Title: "Bienvenue",
+			Author: "admin",
+			Content: "bonjour bienvenue sur ce forum. test...",
+			Category: "Général",
+		},
+		{
+			ID: 2,
+			Title: "Cherche jeu cool",
+			Author: "totodu86",
+			Content: "Yo je cherche un jeu cool",
+			Category: "Jeux vidéos",
+		},
+		{
+			ID: 3,
+			Title: "Sukuna prime ou Gojo",
+			Author: "otakudu76",
+			Content: "Qui gagne ce combat de fou ?",
+			Category: "Manga/Animé",
+		},
+	}
+
+	for _, post := range posts {
+		if post.Category == category {
+			result = append(result, post)
+		}
+	}
+
+	return result
+}
