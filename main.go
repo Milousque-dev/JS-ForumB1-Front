@@ -45,7 +45,7 @@ func main() {
 
 	fmt.Println("Serveur lancé sur (http://localhost" + port + ")")
 	
-	err = http.ListenAndServe(port, mux)
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		fmt.Println("erreur serveur:", err)
 	}
