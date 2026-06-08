@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"forum/fake"
-	"net/http"
 	"math/rand"
+	"net/http"
 	"strconv"
 )
 

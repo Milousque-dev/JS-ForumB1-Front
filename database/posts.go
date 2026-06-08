@@ -1,6 +1,8 @@
 package database
 
 import (
+	"log"
+
 	"forum/models"
 )
 
@@ -10,10 +12,10 @@ const postSelectQuery = `
 	SELECT p.id, p.title, p.content, p.image_path, u.id, u.username, p.created_at,
 		-- GROUP_CONCAT concatène toutes les catégories du post en une chaîne "Général, Jeux vidéos"
 		-- DISTINCT évite les doublons, COALESCE remplace NULL par '' si aucune catégorie
-		COALESCE(GROUP_CONCAT(DISTINCT c.name, ', '), '') AS category,
+		COALESCE(REPLACE(GROUP_CONCAT(DISTINCT c.name), ',', ', '), '') AS category,
 		-- Compte les likes (+1) et dislikes (-1) séparément
-		COALESCE(SUM(CASE WHEN l.value = 1 THEN 1 ELSE 0 END), 0) AS likes,
-		COALESCE(SUM(CASE WHEN l.value = -1 THEN 1 ELSE 0 END), 0) AS dislikes
+		COUNT(DISTINCT CASE WHEN l.value = 1 THEN l.id END) AS likes,
+		COUNT(DISTINCT CASE WHEN l.value = -1 THEN l.id END) AS dislikes
 	FROM posts p
 	-- JOIN classique : tout post a forcément un auteur, on veut son username
 	JOIN users u ON u.id = p.author_id
@@ -40,6 +42,7 @@ func GetAllPosts() []models.Post {
 	query := postSelectQuery + `GROUP BY p.id ORDER BY p.created_at DESC`
 	rows, err := DB.Query(query)
 	if err != nil {
+		log.Println("Erreur récupération posts:", err)
 		return nil
 	}
 	defer rows.Close()
@@ -49,7 +52,12 @@ func GetAllPosts() []models.Post {
 		p, err := scanPost(rows)
 		if err == nil {
 			posts = append(posts, p)
+		} else {
+			log.Println("Erreur scan post:", err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("Erreur parcours posts:", err)
 	}
 	return posts
 }
@@ -60,6 +68,7 @@ func GetPostByID(id int) (models.Post, bool) {
 	row := DB.QueryRow(query, id)
 	p, err := scanPost(row)
 	if err != nil {
+		log.Println("Erreur récupération post:", err)
 		return models.Post{}, false
 	}
 	return p, true
@@ -80,6 +89,7 @@ func GetPostsByCategory(categoryName string) []models.Post {
 
 	rows, err := DB.Query(query, categoryName)
 	if err != nil {
+		log.Println("Erreur récupération posts par catégorie:", err)
 		return nil
 	}
 	defer rows.Close()
@@ -89,7 +99,12 @@ func GetPostsByCategory(categoryName string) []models.Post {
 		p, err := scanPost(rows)
 		if err == nil {
 			posts = append(posts, p)
+		} else {
+			log.Println("Erreur scan post par catégorie:", err)
 		}
+	}
+	if err := rows.Err(); err != nil {
+		log.Println("Erreur parcours posts par catégorie:", err)
 	}
 	return posts
 }
