@@ -1,8 +1,12 @@
 package models
 
 type Comments struct {
-	ID int
-	PostID int
-	Author string
-	Content string
+	ID        int
+	PostID    int
+	AuthorID  int
+	Author    string
+	Content   string
+	Likes     int
+	Dislikes  int
+	CreatedAt string
 }

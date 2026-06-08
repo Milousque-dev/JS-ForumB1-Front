@@ -8,17 +8,14 @@ import (
 )
 
 func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
-	t, err := template.ParseFiles("./templates/" + tmpl )
+	t, err := template.ParseFiles("./templates/" + tmpl)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		InternalErrorHandler(w, nil)
 		return
 	}
-	err = t.Execute(w, data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if err = t.Execute(w, data); err != nil {
+		InternalErrorHandler(w, nil)
 	}
-
 }
 
 func Home( w http.ResponseWriter, r *http.Request) {

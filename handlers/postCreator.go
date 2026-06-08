@@ -1,76 +1,83 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
+	"forum/database"
 	"forum/fake"
 	"forum/models"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
-// fonction pour rediriger sur page création de post si user = connecté
 func PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 	username, isLogged := fake.GetCurrentUser(r)
-
-	err := ""
 	if !isLogged {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
+	errMsg := ""
 	switch r.URL.Query().Get("error") {
 	case "1":
-		err = "Titre, Contenu ou Catégories manquant(s)"
+		errMsg = "Titre, Contenu ou Catégories manquant(s)"
 	case "2":
-		err = "Image trop lourde: max 20 Mo"
+		errMsg = "Image trop lourde : max 20 Mo"
 	case "3":
-		err = "Probleme d'upload ou chargement de l'image"
+		errMsg = "Format d'image invalide (JPEG, PNG ou GIF uniquement)"
+	case "4":
+		errMsg = "Problème lors de l'enregistrement de l'image"
+	case "5":
+		errMsg = "Erreur lors de la publication du post"
 	}
 
 	data := models.TemplateData{
-		Username: username,
-		IsLogged: isLogged,
+		Username:   username,
+		IsLogged:   isLogged,
 		Categories: fake.GetAllCategories(),
-		Error: err,
+		Error:      errMsg,
 	}
-
 	RenderTemplate(w, "postcreate.tmpl", data)
 }
 
-// fonction pour poster le post
 func PostCreator(w http.ResponseWriter, r *http.Request) {
-	_, isLogged := fake.GetCurrentUser(r)
+	user, isLogged := fake.GetCurrentUserFull(r)
 	if !isLogged {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	// refuser l'image si trop volumineuse (>20Mo)
-	const maxUploadSize = 20* 1024* 1024
+	const maxUploadSize = 20 * 1024 * 1024
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 
-	err := r.ParseMultipartForm(maxUploadSize)
-	if err != nil {
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
 		http.Redirect(w, r, "/posts/create?error=2", http.StatusSeeOther)
 		return
 	}
 
 	title := strings.TrimSpace(r.FormValue("title"))
 	content := strings.TrimSpace(r.FormValue("content"))
-	categories := r.Form["categories"]
+	categoryStrs := r.Form["categories"]
 
-	if title == "" || content == "" || len(categories) ==0 {
+	if title == "" || content == "" || len(categoryStrs) == 0 {
 		http.Redirect(w, r, "/posts/create?error=1", http.StatusSeeOther)
 		return
 	}
 
-	// pour gérer l'upload de fichier image : avoir le path et sauvegarder l'img
+	var categoryIDs []int
+	for _, s := range categoryStrs {
+		id, err := strconv.Atoi(s)
+		if err == nil {
+			categoryIDs = append(categoryIDs, id)
+		}
+	}
+
+	imagePath := ""
 	file, header, err := r.FormFile("image")
-	if err != nil {
-		fmt.Println("aucune image uploadée askip")
-	} else {
+	if err == nil {
 		defer file.Close()
 
 		if header.Size > maxUploadSize {
@@ -78,28 +85,43 @@ func PostCreator(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		imgPath := "./static/upload/" + header.Filename
-
-		destination, err := os.Create(imgPath)
-		if err != nil {
+		buf := make([]byte, 512)
+		n, _ := file.Read(buf)
+		if !isAllowedImageType(buf[:n]) {
 			http.Redirect(w, r, "/posts/create?error=3", http.StatusSeeOther)
 			return
 		}
-		defer destination.Close()
+		file.Seek(0, io.SeekStart)
 
-		_, err = io.Copy(destination, file)
+		filename := fmt.Sprintf("%d_%s", user.ID, header.Filename)
+		dest, err := os.Create("./static/upload/" + filename)
 		if err != nil {
-			http.Redirect(w, r, "/posts/create?error=3", http.StatusSeeOther)
+			http.Redirect(w, r, "/posts/create?error=4", http.StatusSeeOther)
 			return
 		}
-		fmt.Println("Image sauvegardée au chemin:", imgPath)
+		defer dest.Close()
+
+		if _, err = io.Copy(dest, file); err != nil {
+			http.Redirect(w, r, "/posts/create?error=4", http.StatusSeeOther)
+			return
+		}
+		imagePath = "/static/upload/" + filename
 	}
 
-	fmt.Println("title:", title, "content:", content, "categories:")
-	for _, category := range categories {
-	fmt.Println(category)
-}
+	if err := database.CreatePost(title, content, imagePath, user.ID, categoryIDs); err != nil {
+		http.Redirect(w, r, "/posts/create?error=5", http.StatusSeeOther)
+		return
+	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func isAllowedImageType(buf []byte) bool {
+	jpegMagic := []byte{0xFF, 0xD8, 0xFF}
+	pngMagic := []byte{0x89, 0x50, 0x4E, 0x47}
+	gifMagic := []byte{0x47, 0x49, 0x46}
+
+	return bytes.HasPrefix(buf, jpegMagic) ||
+		bytes.HasPrefix(buf, pngMagic) ||
+		bytes.HasPrefix(buf, gifMagic)
+}

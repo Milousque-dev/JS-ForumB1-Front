@@ -1,6 +1,10 @@
 package fake
 
-import "net/http"
+import (
+	"forum/database"
+	"forum/models"
+	"net/http"
+)
 
 func GetCurrentUser(r *http.Request) (string, bool) {
 	cookie, err := r.Cookie("session_id")
@@ -8,9 +12,17 @@ func GetCurrentUser(r *http.Request) (string, bool) {
 		return "", false
 	}
 
-	if cookie.Value == "session_nbr" {
-		return "Boss", true
+	user, ok := database.GetUserFromSession(cookie.Value)
+	if !ok {
+		return "", false
 	}
+	return user.Username, true
+}
 
-	return "", false
+func GetCurrentUserFull(r *http.Request) (models.User, bool) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		return models.User{}, false
+	}
+	return database.GetUserFromSession(cookie.Value)
 }

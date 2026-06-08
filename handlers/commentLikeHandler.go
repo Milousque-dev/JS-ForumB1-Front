@@ -1,58 +1,41 @@
 package handlers
 
 import (
-	"fmt"
+	"forum/database"
 	"forum/fake"
 	"net/http"
 	"strconv"
 )
 
 func CommentLikeHandler(w http.ResponseWriter, r *http.Request) {
-	_, isLogged := fake.GetCurrentUser(r)
-	if !isLogged {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	
-	CommentID := r.PathValue("id")
-	id, err := strconv.Atoi(CommentID)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	comment, found := fake.GetCommentByID(id)
-	if !found {
-		http.NotFound(w,r)
-		return
-	}
-
-	fmt.Println("Commentaire liké de id: ", id, " dont le contenu est:", comment.Content)
-
-	http.Redirect(w, r, "/posts/"+strconv.Itoa(comment.PostID), http.StatusSeeOther)
+	toggleCommentReaction(w, r, 1)
 }
 
 func CommentDislikeHandler(w http.ResponseWriter, r *http.Request) {
-	_, isLogged := fake.GetCurrentUser(r)
+	toggleCommentReaction(w, r, -1)
+}
+
+func toggleCommentReaction(w http.ResponseWriter, r *http.Request, value int) {
+	user, isLogged := fake.GetCurrentUserFull(r)
 	if !isLogged {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	CommentID := r.PathValue("id")
-	id, err := strconv.Atoi(CommentID)
+	commentIDStr := r.PathValue("id")
+	commentID, err := strconv.Atoi(commentIDStr)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	comment, found := fake.GetCommentByID(id)
+	comment, found := fake.GetCommentByID(commentID)
 	if !found {
-		http.NotFound(w,r)
+		http.NotFound(w, r)
 		return
 	}
 
-	fmt.Println("Commentaire disliké de id: ", id, "dont le contenu est:", comment.Content)
+	database.ToggleCommentLike(user.ID, commentID, value)
 
 	http.Redirect(w, r, "/posts/"+strconv.Itoa(comment.PostID), http.StatusSeeOther)
 }

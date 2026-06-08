@@ -3,17 +3,20 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"forum/database"
 	"forum/handlers"
 )
 
 const port = ":8080"
 
 func main() {
+	database.Init()
 	fmt.Println("Database créée et fonctionnelle")
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /{$}", handlers.Home)
+	mux.HandleFunc("/", handlers.NotFoundHandler)
 
 	mux.HandleFunc("GET /register", handlers.RegisterHandler)
 	mux.HandleFunc("POST /register", handlers.PostRegisterHandler)

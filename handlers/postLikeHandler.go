@@ -1,58 +1,41 @@
 package handlers
 
 import (
-	"fmt"
+	"forum/database"
 	"forum/fake"
 	"net/http"
 	"strconv"
 )
+
 func PostLikeHandler(w http.ResponseWriter, r *http.Request) {
-	_, isLogged := fake.GetCurrentUser(r)
-	if !isLogged {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	PostID := r.PathValue("id")
-	id, err := strconv.Atoi(PostID)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	
-	post, found := fake.GetPostById(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	fmt.Println("Le post liké est de id:", id, "et de titre:", post.Title)
-
-	http.Redirect(w, r, "/posts/"+PostID, http.StatusSeeOther)
-
+	togglePostReaction(w, r, 1)
 }
 
 func PostDislikeHandler(w http.ResponseWriter, r *http.Request) {
-	_, isLogged := fake.GetCurrentUser(r)
+	togglePostReaction(w, r, -1)
+}
+
+func togglePostReaction(w http.ResponseWriter, r *http.Request, value int) {
+	user, isLogged := fake.GetCurrentUserFull(r)
 	if !isLogged {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
-	PostID := r.PathValue("id")
-	id, err := strconv.Atoi(PostID)
+	postIDStr := r.PathValue("id")
+	postID, err := strconv.Atoi(postIDStr)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	post, found := fake.GetPostById(id)
+	_, found := fake.GetPostById(postID)
 	if !found {
-		http.NotFound(w,r)
+		http.NotFound(w, r)
 		return
 	}
 
-	fmt.Println("Le post disliké a id:", id, "et de titre:", post.Title)
+	database.TogglePostLike(user.ID, postID, value)
 
-	http.Redirect(w, r, "/posts/"+PostID, http.StatusSeeOther)
+	http.Redirect(w, r, "/posts/"+postIDStr, http.StatusSeeOther)
 }

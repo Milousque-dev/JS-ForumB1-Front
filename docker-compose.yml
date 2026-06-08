@@ -1,0 +1,13 @@
+services:
+  forum:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - forum_db:/app/data
+      - forum_uploads:/app/static/upload
+    restart: unless-stopped
+
+volumes:
+  forum_db:
+  forum_uploads:

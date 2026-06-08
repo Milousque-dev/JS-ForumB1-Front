@@ -1,43 +1,67 @@
 package handlers
 
 import (
-	"fmt"
+	"errors"
+	"forum/database"
 	"forum/models"
 	"net/http"
+	"strings"
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	err := ""
-
-	if r.URL.Query().Get("error") == "1" {
-		err = "wrong email or username or password"
+	errMsg := ""
+	switch r.URL.Query().Get("error") {
+	case "1":
+		errMsg = "Tous les champs sont obligatoires"
+	case "2":
+		errMsg = "Cette adresse email est déjà utilisée"
+	case "3":
+		errMsg = "Une erreur est survenue, réessayez"
 	}
 
-	data := models.TemplateData{
-		Error: err,
-	}
+	data := models.TemplateData{Error: errMsg}
 	RenderTemplate(w, "register.tmpl", data)
 }
 
 func PostRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	email := r.FormValue("email")
-	username := r.FormValue("username")
+	email := strings.TrimSpace(r.FormValue("email"))
+	username := strings.TrimSpace(r.FormValue("username"))
 	password := r.FormValue("password")
 
-	if email == "wilfrid.delamare@ynov.com" && len(password) <= 25 {
-		http.SetCookie(w, &http.Cookie{
-			Name: "session_id",
-			Value: "session_nbr",
-			Path: "/",
-			MaxAge: 3600,
-			HttpOnly: true,
-		})
+	if email == "" || username == "" || password == "" {
+		http.Redirect(w, r, "/register?error=1", http.StatusSeeOther)
+		return
+	}
 
-	fmt.Println(email, username, password) //faudra envoyer dans la bdd ces datas...
+	err := database.CreateUser(email, username, password)
+	if err != nil {
+		if errors.Is(err, database.ErrEmailTaken) {
+			http.Redirect(w, r, "/register?error=2", http.StatusSeeOther)
+			return
+		}
+		http.Redirect(w, r, "/register?error=3", http.StatusSeeOther)
+		return
+	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther) // redirige vers index avec 303
-	return
-	}	
+	user, err := database.GetUserByEmail(email)
+	if err != nil {
+		http.Redirect(w, r, "/register?error=3", http.StatusSeeOther)
+		return
+	}
 
-	http.Redirect(w, r, "/register?error=1", http.StatusSeeOther)
+	sessionID, err := database.CreateSession(user.ID)
+	if err != nil {
+		http.Redirect(w, r, "/register?error=3", http.StatusSeeOther)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    sessionID,
+		Path:     "/",
+		MaxAge:   86400,
+		HttpOnly: true,
+	})
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
