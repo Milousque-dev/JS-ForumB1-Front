@@ -74,6 +74,7 @@ func GetPostByID(id int) (models.Post, bool) {
 	return p, true
 }
 
+// retourne les posts qui contiennent le string en parametre
 func SearchPosts(research string) ([]models.Post) {
 	query := postSelectQuery + `
 		WHERE p.title LIKE ? OR p.content LIKE ?
