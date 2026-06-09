@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// dirige vers le html pour se login et affiche l'erreur si erreur de login incorrect
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	errMsg := ""
 	if r.URL.Query().Get("error") == "1" {
@@ -20,6 +21,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "login.tmpl", data)
 }
 
+// envoie les données du formulaire, redirige si erreur. crée les cookies de connexion si reussite.
 func PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := strings.TrimSpace(r.FormValue("email"))
 	password := r.FormValue("password")
@@ -56,6 +58,7 @@ func PostLoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// supprime les cookies, supprime la session de la db. 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_id")
 	if err == nil {

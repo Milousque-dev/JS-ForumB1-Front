@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// template custom erreur 404, envoie le code 404 et parse le template custom
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	t, err := template.ParseFiles("./templates/404.tmpl")
@@ -15,6 +16,7 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, nil)
 }
 
+// template custom erreur 500, envoie le code 500 et parse le template approprié
 func InternalErrorHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 	t, err := template.ParseFiles("./templates/500.tmpl")

@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+// gere le html création de post, affiche les erreurs si elle existe. 
 func PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 	username, isLogged := fake.GetCurrentUser(r)
 	if !isLogged {
@@ -43,6 +44,8 @@ func PostCreateHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "postcreate.tmpl", data)
 }
 
+/* fonction pour créer un post si les conditions sont respectées (pas de champ vide, 
+fichier pas trop lourd, fichier de bon format, erreurs de sauvegarde interne) */
 func PostCreator(w http.ResponseWriter, r *http.Request) {
 	user, isLogged := fake.GetCurrentUserFull(r)
 	if !isLogged {
@@ -116,6 +119,7 @@ func PostCreator(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// fonction pour vérifier si le type d'image est accepté 
 func isAllowedImageType(buf []byte) bool {
 	jpegMagic := []byte{0xFF, 0xD8, 0xFF}
 	pngMagic := []byte{0x89, 0x50, 0x4E, 0x47}

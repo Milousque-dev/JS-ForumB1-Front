@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// handler pour avoir les catégories et afficher le template html 
 func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	username, isLogged := fake.GetCurrentUser(r)
 
@@ -19,6 +20,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "categories.tmpl", data)
 }
 
+// handler pour avoir la catégorie de l'url {id} et afficher tous les posts de la catégorie
 func CategoryByIdHandler(w http.ResponseWriter, r *http.Request) {
 	IdString := r.PathValue("id")
 

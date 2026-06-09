@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// fonction utile pour créer les templates sans se répéter. gere les erreurs si echec. 
 func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
 	t, err := template.ParseFiles("./templates/" + tmpl)
 	if err != nil {
@@ -19,6 +20,8 @@ func RenderTemplate(w http.ResponseWriter, tmpl string, data any) {
 	}
 }
 
+/* gere la page home ("/") et uniquement elle. Gere la connexion de l'utilisateur et envoie les datas.
+get le index.tmpl */
 func Home( w http.ResponseWriter, r *http.Request) {
 	var posts []models.Post
 	

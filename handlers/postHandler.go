@@ -9,17 +9,18 @@ import (
 	"strings"
 )
 
+// envoie le template pour voir un post selon l'id de l'url. renvoie une 404 si erreur.
 func PostHandler(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.NotFound(w, r)
+		NotFoundHandler(w, r)
 		return
 	}
 
 	post, ok := fake.GetPostById(id)
 	if !ok {
-		http.NotFound(w, r)
+		NotFoundHandler(w, r)
 		return
 	}
 
@@ -36,6 +37,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	RenderTemplate(w, "post.tmpl", datas)
 }
 
+// gere l'ajout de commentaire et les erreurs
 func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 	user, isLogged := fake.GetCurrentUserFull(r)
 	if !isLogged {
@@ -46,13 +48,13 @@ func CreateCommentHandler(w http.ResponseWriter, r *http.Request) {
 	postIDStr := r.PathValue("id")
 	postID, err := strconv.Atoi(postIDStr)
 	if err != nil {
-		http.NotFound(w, r)
+		NotFoundHandler(w, r)
 		return
 	}
 
 	_, found := fake.GetPostById(postID)
 	if !found {
-		http.NotFound(w, r)
+		NotFoundHandler(w, r)
 		return
 	}
 
