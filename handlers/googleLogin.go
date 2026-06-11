@@ -22,7 +22,7 @@ func GoogleLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	values := url.Values{}
 	values.Set("client_id", clientID)
-	values.Set("redirect_uri", "http://localhost:8080/auth/google/callback")
+	values.Set("redirect_uri", "http://localhost:8085/auth/google/callback")
 	values.Set("response_type", "code")
 	values.Set("scope", "openid email profile")
 	values.Set("access_type", "online")
@@ -52,6 +52,11 @@ func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := database.FindOrCreateGoogleUser(googleUser)
+	if err != nil {
+		log.Println("Erreur user Google BDD:", err)
+		http.Error(w, "Erreur utilisateur Google", http.StatusInternalServerError)
+		return
+	}
 
 	sessionID, err := database.CreateSession(user.ID)
 	if err != nil {
@@ -85,7 +90,7 @@ func exchangeGoogleCode(code string) (*models.GoogleTokenResponse, error) {
 	data.Set("client_secret", clientSecret)
 	data.Set("code", code)
 	data.Set("grant_type", "authorization_code")
-	data.Set("redirect_uri", "http://localhost:8080/auth/google/callback")
+	data.Set("redirect_uri", "http://localhost:8085/auth/google/callback")
 
 	req, err := http.NewRequest(
 		"POST",

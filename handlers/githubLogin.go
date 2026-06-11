@@ -17,7 +17,7 @@ import (
 func GithubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	url := "https://github.com/login/oauth/authorize" + "?client_id=" +
 		os.Getenv("GITHUB_CLIENT_ID") +
-		"&redirect_uri=http://localhost:8080/auth/github/callback" +
+		"&redirect_uri=http://localhost:8085/auth/github/callback" +
 		"&scope=user:email"
 
 	http.Redirect(w, r, url, http.StatusSeeOther)
@@ -92,7 +92,7 @@ func GetGitHubToken(code string) (*models.GithubTokenResponse, error) {
 	data.Set("client_id", clientID)
 	data.Set("client_secret", clientSecret)
 	data.Set("code", code)
-	data.Set("redirect_uri", "http://localhost:8080/auth/github/callback")
+	data.Set("redirect_uri", "http://localhost:8085/auth/github/callback")
 
 	req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", strings.NewReader(data.Encode())) // data.encode transforme le texte en urlencoded format
 	// io.reader c'est une interface qui lit progressivement ce qu'on lui donne.

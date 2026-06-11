@@ -7,7 +7,7 @@ import (
 
 	// Le _ importe le package sans l'utiliser directement :
 	// son init() interne enregistre le driver SQLite auprès de database/sql
-	_ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // DB est la variable globale partagée par tous les fichiers du package database
@@ -23,7 +23,7 @@ func Init() {
 
 	var err error
 	// sql.Open prépare la configuration mais ne crée pas encore la connexion
-	DB, err = sql.Open("sqlite", "./data/forum.db")
+	DB, err = sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
 		// log.Fatal affiche l'erreur et arrête le programme immédiatement
 		log.Fatal("Impossible d'ouvrir la base de données:", err)
@@ -129,4 +129,10 @@ func createTables() {
 			log.Fatal("Erreur création table:", err)
 		}
 	}
+
+	// Migrations : ajout des colonnes OAuth sur les BDD existantes
+	// SQLite ne supporte pas ALTER TABLE ADD COLUMN IF NOT EXISTS,
+	// donc on tente et on ignore l'erreur si la colonne existe déjà
+	DB.Exec(`ALTER TABLE users ADD COLUMN provider TEXT NOT NULL DEFAULT 'local'`)
+	DB.Exec(`ALTER TABLE users ADD COLUMN provider_id TEXT`)
 }

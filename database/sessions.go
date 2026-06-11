@@ -9,6 +9,10 @@ import (
 )
 
 func CreateSession(userID int) (string, error) {
+	// Spec : un utilisateur ne peut avoir qu'une seule session ouverte à la fois
+	// On supprime toute session existante avant d'en créer une nouvelle
+	DB.Exec(`DELETE FROM sessions WHERE user_id = ?`, userID)
+
 	sessionID := uuid.New().String()
 	expiresAt := time.Now().Add(24 * time.Hour)
 

@@ -1,13 +1,33 @@
 services:
+
+  db:
+    image: alpine:3.19
+    volumes:
+      - forum_data:/data
+    # Crée le dossier de la BDD et reste en vie pour garder le volume accessible
+    command: sh -c "mkdir -p /data && chmod 755 /data && echo 'Volume SQLite prêt' && tail -f /dev/null"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "test", "-d", "/data"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   forum:
     build: .
     ports:
-      - "8080:8080"
+      - "8085:8085"
     volumes:
-      - forum_db:/app/data
-      - forum_uploads:/app/static/upload
+      - forum_data:/app/data           # BDD SQLite partagée avec le container db
+      - forum_uploads:/app/static/upload  # Images uploadées persistantes
+    env_file:
+      - path: .env
+        required: false                # Ne plante pas si .env absent (variables injectées autrement)
+    depends_on:
+      db:
+        condition: service_healthy     # Attend que db soit prêt avant de démarrer
     restart: unless-stopped
 
 volumes:
-  forum_db:
-  forum_uploads:
+  forum_data:     # Volume SQLite partagé entre db et forum
+  forum_uploads:  # Images uploadées par les utilisateurs

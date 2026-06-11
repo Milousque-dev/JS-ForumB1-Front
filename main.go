@@ -4,21 +4,12 @@ import (
 	"fmt"
 	"forum/database"
 	"forum/handlers"
-	"log"
 	"net/http"
-
-	"github.com/joho/godotenv"
 )
 
-const port = ":8080"
+const port = ":8085"
 
 func main() {
-
-	// golang ne gere pas le .env nativement. Il faut donc une bibliotheque pour y avoir accès
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Problème de chargement variables .env")
-	}
 
 	database.Init()
 	fmt.Println("Database créée et fonctionnelle")
@@ -67,7 +58,7 @@ func main() {
 
 	fmt.Println("Serveur lancé sur (http://localhost" + port + ")")
 	
-	err = http.ListenAndServe(port, mux)
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		fmt.Println("erreur serveur:", err)
 	}
