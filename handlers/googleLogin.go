@@ -75,7 +75,6 @@ func GoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	// puis créer ta session/cookie
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
